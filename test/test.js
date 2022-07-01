@@ -5,13 +5,13 @@ const increaseTime = async (seconds) => {
         jsonrpc: '2.0',
         method: 'evm_increaseTime',
         params: [seconds],
-        id: 0,
+        id: new Date().getTime(),
     }, () => { })
     await web3.currentProvider.send({
         jsonrpc: '2.0',
         method: 'evm_mine',
         params: [],
-        id: 0,
+        id: new Date().getTime(),
     }, () => { })
 }
 
@@ -28,23 +28,30 @@ contract("DeedMultiPayout", (accounts) => {
 
     it("should withdraw for all payouts (1)", async () => {
         // console.log(deedMultiPayout)
+        // web3.eth.getBlock('latest')
         await increaseTime(1)
         for (let i = 0; i < 4; i++) {
             const balanceBefore = web3.utils.toBN(await web3.eth.getBalance(accounts[1]))
+
             // await new Promise(resolve => setTimeout(resolve, 1000))
+            // await increaseTime(1)
+
             await deedMultiPayout.withdraw({ from: accounts[0] })
-            await new Promise(resolve => setTimeout(resolve, 1000))
             const balanceAfter = web3.utils.toBN(await web3.eth.getBalance(accounts[1]))
-            console.log(balanceAfter.sub(balanceBefore).toNumber())
+            // console.log(balanceAfter.sub(balanceBefore).toNumber(), (await web3.eth.getBlock('latest')).timestamp)
+
             assert(balanceAfter.sub(balanceBefore).toNumber() === 25)
         }
     })
 
     it("should withdraw for all payouts (2)", async () => {
+        // await increaseTime(2)
         for (let i = 0; i < 2; i++) {
             const balanceBefore = web3.utils.toBN(await web3.eth.getBalance(accounts[1]))
-            await new Promise(resolve => setTimeout(resolve, 2000))
+
+            // await new Promise(resolve => setTimeout(resolve, 2000))
             await increaseTime(2)
+
             await deedMultiPayout.withdraw({ from: accounts[0] })
             const balanceAfter = web3.utils.toBN(await web3.eth.getBalance(accounts[1]))
 
